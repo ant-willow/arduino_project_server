@@ -1,0 +1,37 @@
+{% extends 'main.html' %}
+
+{% block title %}
+Последнее измерение
+{% endblock %}
+
+{% block body %}
+
+{% with menu='index' %}
+    {% include 'includes/menu.html' %}
+{% endwith %}
+<div class="cell ">
+    <hr>
+    <h2><p class=" text-center">Последнее измерение</p></h2>
+    <hr>
+
+    <div style="text-align: center;">
+
+            {% if entry %}
+            <hr>
+            <h3>Температура&#127777;</h3>
+            <p style="font-size:36px;">{{ entry.temperature }} &#8451;</p>
+            <h3>Влажность &#128167;</h3>
+            <p style="font-size:36px;">{{ entry.humidity }} &#37;</p>
+            <hr>
+            
+            <p style="font-size:14px;">Обновлено<br>{{ entry.created.strftime('%H:%M %d.%m.%Y') }}</p>
+            {% else %}
+            <h3>Нет данных</h3>
+            {% endif %}
+    </div>
+    
+</div>
+
+
+
+{% endblock %}

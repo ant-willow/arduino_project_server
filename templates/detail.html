@@ -1,0 +1,51 @@
+{% extends 'main.html' %}
+
+{% block title %}
+Подробный список измерений за дату
+{% endblock %}
+
+{% block body %}
+
+{% with menu='detail' %}
+    {% include 'includes/menu.html' %}
+{% endwith %}
+
+<div class="cell">
+
+    {% if entries.items|length > 0 %}
+    <hr>
+    <h2><p class=" text-center">Список измерений за {{ entries.items[0].created.strftime('%d.%m.%Y') }}</p></h2>
+    <hr>
+    <table class="unstriped">
+            <thead>
+                <tr>
+                    <th width="200">Время</th>
+                    <th width="200">Температура</th>
+                    <th width="200">Влажность</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for entry in entries.items %}
+                <tr>
+                    <td>{{ entry.created.strftime('%H:%M') }}</td>
+                    <td style="background-color: {{ pick_color(1, entry.temperature, 0) }}">{{ entry.temperature }} ℃</td>
+                    <td style="background-color: {{ pick_color(0, entry.humidity, 1) }}">{{ entry.humidity }} %</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+    </table>
+
+        
+    {% else %}
+        <hr>
+        <h2><p class=" text-center">Список измерений за {{ moscow_now.strftime('%d.%m.%Y') }}</p></h2>
+        <hr>
+        <h3 class=" text-center">Нет данных</h3>
+    {% endif %}
+</div>
+
+{% if entries.pages > 1 %}
+    {% include 'includes/paginator.html' %}
+{% endif %}
+
+{% endblock %}

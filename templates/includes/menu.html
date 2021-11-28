@@ -1,0 +1,9 @@
+<div class="cell " >
+    <ul class="menu align-center">
+        <li class="{% if menu == 'index' %} is-active {% endif %}"><a href="{{ url_for('index') }}">Последнее</a></li>
+        <li class="{% if menu == 'list' %} is-active {% endif %}"><a href="{{ url_for('list') }}">Список</a></li>
+        <li class="{% if menu == 'detail' %} is-active {% endif %}"><a href="{{ url_for('detail', date=moscow_now) }}">Подробно</a></li>
+        
+    </ul>
+    
+</div>
