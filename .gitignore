@@ -1,3 +1,4 @@
 sensor_values.db
 arduino_temp_humi.log
 .vscode/
+.env

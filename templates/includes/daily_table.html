@@ -16,7 +16,7 @@
     </thead>
     <tbody>
 
-{% for entry in entries%}
+{% for entry in entries.items %}
     <tr>
         <td><a href="{{ url_for('detail', date=entry.created.strftime('%Y-%m-%d')) }}">{{ entry.created.strftime('%d.%m.%y') }}</a></td>
         <td style="background-color: {{ pick_color(1, entry.min_temp, 0) }}">{{ entry.min_temp }}</td>
@@ -30,3 +30,7 @@
 
     </tbody>
 </table>
+
+{% if entries.pages > 1 %}
+    {% include 'includes/paginator.html' %}
+{% endif %}

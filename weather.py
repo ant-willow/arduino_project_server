@@ -1,6 +1,11 @@
-import requests
+import os
 
-API_KEY = 'cdb4dc7326b69ab1b44830e3aca84d87'
+import requests
+from dotenv import load_dotenv
+
+load_dotenv()
+
+API_KEY = os.getenv('API_KEY')
 CITY = 'Saint Petersburg'
 
 
@@ -12,11 +17,11 @@ def get_weather():
         return
 
     data = response.json()
-    city = data['name']
+    city_name = data['name']
     icon_code = data['weather'][0]['icon']
     icon_url = f'http://openweathermap.org/img/wn/{icon_code}@2x.png'
     temp  = data['main']['temp']
     temp = round(int(temp))
     humi = data['main']['humidity']
-
-    return {'city': city, 'icon_url': icon_url, 'temp': temp, 'humidity': humi}
+    
+    return {'city': city_name, 'icon_url': icon_url, 'temp': temp, 'humidity': humi}

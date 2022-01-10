@@ -23,13 +23,18 @@ def inject_moscow_now():
 @bp.app_context_processor
 def utility_processor():
     def day_of_month(value):
-        return MONTHS[int(value) - 1]
+        try:
+            return MONTHS[int(value) - 1]
+        except:
+            return value
     return {'day_of_month': day_of_month}
 
 @bp.app_context_processor
 def utility_processor():
     def query_update(request, **kwargs):
         updated = request.args.copy()
+        if 'page' in updated:
+            updated.pop('page')
         for key, value in kwargs.items():
             if value != 0:
                 updated[key] = value

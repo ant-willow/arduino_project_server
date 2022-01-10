@@ -30,6 +30,7 @@
             const url_params = new URLSearchParams(window.location.search);
 
             function updateValue(e) {
+                url_params.delete('page');
                 url_params.set('date', e.target.value);
                 window.location = '?' + url_params;
             }
@@ -41,7 +42,7 @@
     </div>
 
 
-    {% if entries|length > 0 %}
+    {% if chart_data or entries.items|length > 0 %}
 
         {% if request.args.table %}
         <a href="{{ query_update(request, table=0) }}" class="hollow button small expanded">Перейти к графику</a>

@@ -2,7 +2,7 @@
     <nav aria-label="Переключение страниц"></nav>
         <ul class="pagination text-center">
                 {% if entries.has_prev %}
-                        <li class="pagination-previous"><a href="?page={{ entries.prev_num }}" aria-label="Next page">Предыдущая<span class="show-for-sr">page</span></a></li>
+                        <li class="pagination-previous"><a href="{{ query_update(request, page=entries.prev_num) }}" aria-label="Next page">Предыдущая<span class="show-for-sr">page</span></a></li>
                 {% else %}
                         <li class="pagination-previous disabled">Предыдущая<span class="show-for-sr">page</span></li>
                 {% endif %}
@@ -10,11 +10,11 @@
                         {% if entries.page == page %}
                             <li class="current"><span >{{ page }}</span></li>
                         {% else %}
-                            <li class="page-item"><a href="?page={{ page }}">{{ page }}</a></li>
+                            <li class="page-item"><a href="{{ query_update(request, page=page) }}">{{ page }}</a></li>
                         {% endif %}
                 {% endfor %}
-                {% if entries.has_next %}
-                        <li class="pagination-next"><a href="?page={{ entries.next_num }}" aria-label="Next page">Следующая<span class="show-for-sr">page</span></a></li>
+                {% if entries.has_next %} 
+                        <li class="pagination-next"><a href="{{ query_update(request, page=entries.next_num) }}" aria-label="Next page">Следующая<span class="show-for-sr">page</span></a></li>
                 {% else %}
                         <li class="pagination-next disabled">Следующая<span class="show-for-sr">page</span></li>
                 {% endif %}

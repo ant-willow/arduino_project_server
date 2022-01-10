@@ -44,7 +44,7 @@
         </div>
       </div>
     
-      {% if entries|length > 0 %}
+      {% if chart_data or entries.items|length > 0 %}
 
         {% if request.args.table %}
         <a href="{{ query_update(request, table=0) }}" class="hollow button small expanded">Перейти к графику</a>

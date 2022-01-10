@@ -63,7 +63,7 @@ def daily():
                        extract('month', Entry.created) == month,
                        Entry.device_id == device_id)
                .group_by(func.strftime('%Y-%m-%d', Entry.created)) 
-               .all())
+               )
 
     available_months = (db.session.query(
         extract('month', Entry.created))
@@ -78,13 +78,14 @@ def daily():
              .all())
 
     data = {'available_years': available_years,'available_months': available_months,
-            'year': year, 'month': month, 'device_id': device_id, 'entries': entries}
+            'year': year, 'month': month, 'device_id': device_id}
     
     if not table:
         chart_data = [{'min_t': n.min_temp, 'avg_t': n.avg_temp, 'max_t': n.max_temp,
                       'min_h': n.min_humi, 'avg_h': n.avg_humi, 'max_h': n.max_humi,
                       'x': n.created.day}  for n in entries]
         data.update({'chart_data': chart_data})
+    data.update({'entries': entries.paginate(page, PAGE_SIZE, True)})
 
     return render_template('daily.html', **data)
 
@@ -92,12 +93,18 @@ def daily():
 @app.route('/detail/')
 def detail():
     # список показаний за указаную дату(день)
-    table = request.args.get('table', False)
-    date = request.args.get('date')
-    date = date or str(moscow_now().date())
-    device_id = request.args.get('device_id', 1)
-    data = {'table': table, 'device_id': device_id}
+    date = request.args.get('date', moscow_now().date())
+    
+    try:
+        date = dt.strptime(str(date), '%Y-%m-%d').date()
+    except(ValueError):
+        return render_template('404.html'), 404
 
+    table = request.args.get('table', False)
+    device_id = request.args.get('device_id', 1)
+    data = {'table': table, 'device_id': device_id, 'date': date}
+    page = request.args.get('page', 1, type=int)
+                             
     if not table:
         entries = (db.session.query(
             Entry.created,
@@ -114,11 +121,11 @@ def detail():
                        'avg_h': n.avg_humi} for n in entries]
         data.update({'chart_data': chart_data})
     else:
-        entries = Entry.query.filter(
+        entries = (Entry.query.filter(
             func.date(Entry.created) == date,
-            Entry.device_id == device_id).all()
-
-    data.update({'entries': entries, 'date': dt.strptime(str(date), '%Y-%m-%d')})
+            Entry.device_id == device_id)
+                .paginate(page, DETAIL_PAGE_SIZE, True))
+    data.update({'entries': entries})
     
     return render_template('detail.html', **data)
 
@@ -149,6 +156,12 @@ def add():
     except:
         logging.error(Error.CREATE_ERROR)
         return Error.CREATE_ERROR, 400
+
+
+@app.errorhandler(404)
+def not_found(e):
+  return render_template("404.html"), 404
+
 
 if __name__ == '__main__':
     app.run(debug=True, host="0.0.0.0")
