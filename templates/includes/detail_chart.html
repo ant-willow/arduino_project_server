@@ -1,0 +1,78 @@
+<canvas id="myChart" width="400" height="400"></canvas>
+<hr>
+<canvas id="myChart2" width="400" height="400"></canvas>
+
+<script>
+    const ctx = document.getElementById('myChart');
+    const ctx2 = document.getElementById('myChart2');
+    const hours = Array.from(Array(24).keys());
+    var data = {{ chart_data|tojson }}
+    const myChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: hours,
+            datasets: [
+            {
+                label: 'Влажность',
+                data: data,
+                backgroundColor: '#b2ccf7',
+                borderWidth: 2,
+                fill: true,
+                parsing: {
+                    yAxisKey: 'avg_h'
+                }
+            }
+            ]
+        },
+        options: {
+            scales: {
+                y: {
+                    title: {
+                    display: true,
+                    text: 'Влажность, %'
+                    }
+                },
+                
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Время, Ч'
+                    }
+                }
+            }
+        }
+    });
+    const myChart2 = new Chart(ctx2, {
+        type: 'line',
+        data: {
+            labels: hours,
+            datasets: [{
+                label: 'Температура',
+                data: data,
+                fill: true,
+                backgroundColor: '#fedfab',
+                borderWidth: 1,
+                parsing: {
+                    yAxisKey: 'avg_t'
+                }
+            }]
+        },
+        options: {
+            scales: {
+                y: {
+                    title: {
+                        display: true,
+                        text: 'Температура, ℃'
+                    }
+                },
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Время, Ч'
+                    }
+                    
+                }
+            }
+        }
+    });
+    </script>

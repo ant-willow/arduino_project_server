@@ -1,0 +1,65 @@
+{% extends 'main.html' %}
+
+{% block title %}
+Измерения по дням
+{% endblock %}
+
+{% block body %}
+
+{% with menu='daily' %}
+    {% include 'includes/menu.html' %}
+{% endwith %}
+
+<div class="cell" >
+    <hr>
+    
+    {% if request.args.table %}
+    {% set header_title = 'Таблица' %}
+    {% else %}
+    {% set header_title = 'График' %}
+    {% endif %}
+
+    <h2><p class=" text-center">{{ header_title }} измерений за период </p></h2>
+    <h4 class=" text-center">{{ day_of_month(month) }} {{ year }}</h4>
+    
+    <hr>
+    
+    <div class="grid-x grid-margin-x small-up-3" style="margin 2pt 2pt">
+        <div class="cell shrink">
+            <select onchange="window.location.href=this.options[this.selectedIndex].value">
+                {% for year_option in available_years %} 
+                <option value="{{ query_update(request, year=year_option[0], month=year_option[1]) }}" {% if year_option[0] == year|int %} selected {% endif %}> {{ year_option[0] }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="cell shrink">
+            <select onchange="window.location.href=this.options[this.selectedIndex].value">
+                {% for month_option in available_months %} 
+                <option value="{{ query_update(request, month=month_option[0]) }}" {% if month_option[0] == month|int %} selected {% endif %}> {{ day_of_month(month_option[0]) }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="cell shrink">
+            {% include 'includes/sensor_select.html' %}
+        </div>
+      </div>
+    
+      {% if entries|length > 0 %}
+
+        {% if request.args.table %}
+        <a href="{{ query_update(request, table=0) }}" class="hollow button small expanded">Перейти к графику</a>
+        {% include 'includes/daily_table.html' %}
+
+        {% else %}
+        <a href="{{ query_update(request, table=1) }}" class="hollow button small expanded">Перейти к таблице</a>
+        {% include 'includes/daily_chart.html' %}
+    
+        {% endif %}
+    {% else %}
+        <h3 class=" text-center">Нет данных</h3>
+    {% endif %}
+</div>
+
+
+
+{% endblock %}

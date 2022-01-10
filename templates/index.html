@@ -9,29 +9,67 @@
 {% with menu='index' %}
     {% include 'includes/menu.html' %}
 {% endwith %}
+
 <div class="cell ">
     <hr>
-    <h2><p class=" text-center">Последнее измерение</p></h2>
+    <h2><p class=" text-center">Последние данные</p></h2>
+    <hr>    
+    <div class="grid-x grid-margin-x small-up-2" style="text-align: center;">
+
+        <div class="cell">
+            <div class="card">
+                <div class="card-divider">
+                    <h4>Датчик 1</h4>
+                </div>
+                <div class="card-section">
+                    {% if entry %}
+                    <h3>Температура&#127777;</h3>
+                    <p style="font-size:36px;">{{ entry.temperature }} &#8451;</p>
+                    <h3>Влажность &#128167;</h3>
+                    <p style="font-size:36px;">{{ entry.humidity }} &#37;</p>
+                    <hr>
+                    <p style="font-size:14px;">Обновлено<br>{{ entry.created.strftime('%H:%M %d.%m.%Y') }}</p>
+
+                    {% else %}
+                    <h3>Нет данных</h3>
+
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="cell">
+            <div class="card">
+                <div class="card-divider">
+                    <h4>Датчик 2</h4>
+                </div>
+                <div class="card-section">
+                    {% if entry2 %}
+                    <h3>Температура&#127777;</h3>
+                    <p style="font-size:36px;">{{ entry2.temperature }} &#8451;</p>
+                    <h3>Влажность &#128167;</h3>
+                    <p style="font-size:36px;">{{ entry2.humidity }} &#37;</p>
+                    <hr>
+                    <p style="font-size:14px;">Обновлено<br>{{ entry2.created.strftime('%H:%M %d.%m.%Y') }}</p>
+
+                    {% else %}
+                    <h3>Нет данных</h3>
+
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
     <hr>
 
-    <div style="text-align: center;">
-
-            {% if entry %}
-            <hr>
-            <h3>Температура&#127777;</h3>
-            <p style="font-size:36px;">{{ entry.temperature }} &#8451;</p>
-            <h3>Влажность &#128167;</h3>
-            <p style="font-size:36px;">{{ entry.humidity }} &#37;</p>
-            <hr>
-            
-            <p style="font-size:14px;">Обновлено<br>{{ entry.created.strftime('%H:%M %d.%m.%Y') }}</p>
-            {% else %}
-            <h3>Нет данных</h3>
-            {% endif %}
+    {% if weather %}
+    <div  style="text-align: center;  padding: 3pt">
+        <h4 style="margin: 3pt">{{ weather.city }}</h4>
+        {{ weather.temp }}°C
+        <img height="60" width="60" style="float: right text-align: center; background-color:#bdd6fc;" src="{{ weather.icon_url }}" alt="icon">
+        {{weather.humidity }} %
     </div>
-    
+    {% endif %}
 </div>
-
-
 
 {% endblock %}

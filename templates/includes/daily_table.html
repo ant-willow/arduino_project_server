@@ -1,0 +1,32 @@
+<table class="unstriped" >
+    <thead>
+        <tr >
+            <th rowspan="2" colspan="1" width="200">Дата</th>
+            <th rowspan="1" colspan="3" >Температура, ℃</th>
+            <th rowspan="1" colspan="3" >Влажность, %</th>
+        </tr>
+        <tr>
+            <th width="200">min</th>
+            <th width="200">avg</th>
+            <th width="200">max</th>
+            <th width="200">min</th>
+            <th width="200">avg</th>
+            <th width="200">max</th>
+        </tr>
+    </thead>
+    <tbody>
+
+{% for entry in entries%}
+    <tr>
+        <td><a href="{{ url_for('detail', date=entry.created.strftime('%Y-%m-%d')) }}">{{ entry.created.strftime('%d.%m.%y') }}</a></td>
+        <td style="background-color: {{ pick_color(1, entry.min_temp, 0) }}">{{ entry.min_temp }}</td>
+        <td style="background-color: {{ pick_color(1, entry.avg_temp, 0) }}">{{ entry.avg_temp }}</td>
+        <td style="background-color: {{ pick_color(1, entry.max_temp, 0) }}">{{ entry.max_temp }}</td>
+        <td style="background-color: {{ pick_color(0, entry.min_humi, 1) }}">{{ entry.min_humi }}</td>
+        <td style="background-color: {{ pick_color(0, entry.avg_humi, 1) }}">{{ entry.avg_humi }}</td>
+        <td style="background-color: {{ pick_color(0, entry.max_humi, 1) }}">{{ entry.max_humi }}</td>
+    </tr>
+{% endfor %}
+
+    </tbody>
+</table>

@@ -1,9 +1,7 @@
 <div class="cell " >
     <ul class="menu align-center">
-        <li class="{% if menu == 'index' %} is-active {% endif %}"><a href="{{ url_for('index') }}">Последнее</a></li>
-        <li class="{% if menu == 'list' %} is-active {% endif %}"><a href="{{ url_for('list') }}">Список</a></li>
-        <li class="{% if menu == 'detail' %} is-active {% endif %}"><a href="{{ url_for('detail', date=moscow_now) }}">Подробно</a></li>
-        
+        <li class="{% if menu == 'index' %} is-active {% endif %}"><a href="{{ url_for('index') }}">Главная</a></li>
+        <li class="{% if menu == 'detail' %} is-active {% endif %}"><a href="{{ url_for('detail') }}">За день</a></li>
+        <li class="{% if menu == 'daily' %} is-active {% endif %}"><a href="{{ url_for('daily') }}">По дням</a></li>
     </ul>
-    
 </div>

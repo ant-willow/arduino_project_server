@@ -1,0 +1,4 @@
+<select onchange="window.location.href=this.options[this.selectedIndex].value">
+    <option value="{{ query_update(request, device_id=1) }}"  {% if device_id == '1' %} selected {% endif %}>Датчик 1</option>
+    <option value="{{ query_update(request, device_id=2) }}"  {% if device_id == '2' %} selected {% endif %}>Датчик 2</option>
+</select>

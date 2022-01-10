@@ -1,0 +1,128 @@
+<canvas id="myChart" width="400" height="400"></canvas>
+<hr>
+<canvas id="myChart2" width="400" height="400"></canvas>
+
+<script>
+    const ctx = document.getElementById('myChart');
+    const ctx2 = document.getElementById('myChart2');
+    var days =  Array.from({length: 31}, (_, index) => index + 1)
+    var data = {{ chart_data|tojson }}
+    const myChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: days,
+            datasets: [
+            {
+                label: 'Минимальная',
+                data: data,
+                backgroundColor: '#84adf2',
+                borderWidth: 1,
+                fill: true,
+                parsing: {
+                    yAxisKey: 'min_h'
+                }
+            }, {
+                label: 'Средняя',
+                data: data,
+                fill: true,
+                backgroundColor: '#b2ccf7',
+                borderWidth: 2,
+                parsing: {
+                    yAxisKey: 'avg_h'
+                }
+            }, {
+                label: 'Максимальная',
+                data: data,
+                fill: true,
+                backgroundColor: '#e0ebfc',
+                borderWidth: 1,
+                parsing: {
+                    yAxisKey: 'max_h'
+                }
+            }
+            ]
+        },
+        options: {
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'Влажность'
+                }
+            },
+            scales: {
+                y: {
+                    title: {
+                    display: true,
+                    text: 'h, %'
+                    }
+                },
+                
+                x: {
+                    title: {
+                        display: true,
+                        text: 'День'
+                    }
+                }
+            }
+        }
+    });
+    const myChart2 = new Chart(ctx2, {
+        type: 'line',
+        data: {
+            labels: days,
+            datasets: [{
+                label: 'Минимальная',
+                data: data,
+                fill: true,
+                backgroundColor: '#fdcc79',
+                borderWidth: 1,
+                parsing: {
+                    yAxisKey: 'min_t'
+                }
+            }, {
+                label: 'Средняя',
+                data: data,
+                fill: true,
+                backgroundColor: '#fedfab',
+                borderWidth: 2,
+                parsing: {
+                    yAxisKey: 'avg_t'
+                }
+            }, {
+                label: 'Максимальная',
+                data: data,
+                fill: true,
+                backgroundColor: '#fff2dd',
+                borderWidth: 1,
+                parsing: {
+                    yAxisKey: 'max_t'
+                }
+            }
+
+            ]
+        },
+        options: {
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'Температура'
+                }
+            },
+            scales: {
+                y: {
+                    title: {
+                        display: true,
+                        text: 't, ℃'
+                    }
+                },
+                x: {
+                    title: {
+                        display: true,
+                        text: 'День'
+                    }
+                    
+                }
+            }
+        }
+    });
+    </script>

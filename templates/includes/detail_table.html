@@ -1,0 +1,18 @@
+<table class="unstriped">
+    <thead>
+        <tr>
+            <th width="200">Время</th>
+            <th width="200">Температура</th>
+            <th width="200">Влажность</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for entry in entries %}
+        <tr>
+            <td>{{ entry.created.strftime('%H:%M') }}</td>
+            <td style="background-color: {{ pick_color(1, entry.temperature, 0) }}">{{ entry.temperature }} ℃</td>
+            <td style="background-color: {{ pick_color(0, entry.humidity, 1) }}">{{ entry.humidity }} %</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>

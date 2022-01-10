@@ -1,13 +1,16 @@
-from flask import Flask, render_template, redirect, request
-from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import func
-from datetime import datetime as dt
-import pytz
 import logging
+from datetime import datetime as dt
 
+from flask import Flask, redirect, render_template, request
+from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import extract, func
 
-LIST_PAGE_SIZE = 7
+from utils import bp, moscow_now
+from weather import get_weather
+
+PAGE_SIZE = 7
 DETAIL_PAGE_SIZE = 36
+
 
 class Error:
     WRONG_DATA = 'Некорректные данные!'
@@ -18,27 +21,9 @@ logging.basicConfig(filename='arduino_temp_humi.log', level=logging.INFO,
                    format='%(asctime)s %(levelname)s - %(message)s')
 
 app = Flask(__name__)
+app.register_blueprint(bp)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///sensor_values.db'
 db = SQLAlchemy(app)
-
-
-def moscow_now():
-    return dt.now(tz=pytz.timezone('Europe/Moscow'))
-
-@app.context_processor
-def inject_moscow_now():
-    return {'moscow_now': moscow_now().date()}
-
-@app.context_processor
-def utility_processor():
-    def pick_color(red, value, blue):
-        red *= 200
-        blue *= 200
-        green = 255 - (255 * value * 2 / 100)
-        alpha =  0.2 * value * 2 / 100
-        return f'rgba({red}, {green}, {blue}, {alpha});'
-    return {'pick_color': pick_color}
-
 
 
 class Entry(db.Model):
@@ -52,13 +37,20 @@ class Entry(db.Model):
 
 @app.route('/')
 def index():
-    entry = Entry.query.order_by(Entry.created.desc()).first()
-    return render_template('index.html', entry=entry)
+    entry = Entry.query.order_by(Entry.created.desc()).filter(Entry.device_id == 1).first()
+    entry2 = Entry.query.order_by(Entry.created.desc()).filter(Entry.device_id == 2).first()
+    return render_template('index.html', entry=entry, entry2=entry2, weather=get_weather())
 
-@app.route('/list')
-def list():
+
+@app.route('/daily/')
+def daily():
     # список показаний с групировкой по дням
     page = request.args.get('page', 1, type=int)
+    year = request.args.get('year', moscow_now().date().year)
+    month = request.args.get('month', moscow_now().date().month)
+    device_id = request.args.get('device_id', 1)
+    table = request.args.get('table', False) 
+   
     entries = (db.session.query(
         Entry.created,
         func.min(Entry.temperature).label('min_temp'),
@@ -66,20 +58,70 @@ def list():
         func.max(Entry.temperature).label('max_temp'),
         func.min(Entry.humidity).label('min_humi'),
         func.round(func.avg(Entry.humidity), 1).label('avg_humi'),
-        func.max(Entry.humidity).label('max_humi'),
-        )
-               .group_by(func.strftime('%Y-%m-%d', Entry.created))
-               .order_by(Entry.created.desc())
-               .paginate(page, LIST_PAGE_SIZE, False))
-    return render_template('list.html', entries=entries)
+        func.max(Entry.humidity).label('max_humi'))
+               .filter(extract('year', Entry.created) == year, 
+                       extract('month', Entry.created) == month,
+                       Entry.device_id == device_id)
+               .group_by(func.strftime('%Y-%m-%d', Entry.created)) 
+               .all())
 
-@app.route('/detail/<string:date>')
-def detail(date):
+    available_months = (db.session.query(
+        extract('month', Entry.created))
+              .group_by(func.strftime('%m', Entry.created))
+              .filter(extract('year', Entry.created) == year)
+              .all())
+    available_years = (db.session.query(
+        extract('year', Entry.created),
+        extract('month', Entry.created))
+             .group_by(func.strftime('%Y', Entry.created))
+             .order_by(Entry.created.desc())
+             .all())
+
+    data = {'available_years': available_years,'available_months': available_months,
+            'year': year, 'month': month, 'device_id': device_id, 'entries': entries}
+    
+    if not table:
+        chart_data = [{'min_t': n.min_temp, 'avg_t': n.avg_temp, 'max_t': n.max_temp,
+                      'min_h': n.min_humi, 'avg_h': n.avg_humi, 'max_h': n.max_humi,
+                      'x': n.created.day}  for n in entries]
+        data.update({'chart_data': chart_data})
+
+    return render_template('daily.html', **data)
+
+
+@app.route('/detail/')
+def detail():
     # список показаний за указаную дату(день)
-    page = request.args.get('page', 1, type=int)
-    entries =  (Entry.query.filter(func.date(Entry.created) == date)
-                .paginate(page, DETAIL_PAGE_SIZE, False))
-    return render_template('detail.html', entries=entries)
+    table = request.args.get('table', False)
+    date = request.args.get('date')
+    date = date or str(moscow_now().date())
+    device_id = request.args.get('device_id', 1)
+    data = {'table': table, 'device_id': device_id}
+
+    if not table:
+        entries = (db.session.query(
+            Entry.created,
+            func.round(func.avg(Entry.temperature), 1).label('avg_temp'),
+            func.round(func.avg(Entry.humidity), 1).label('avg_humi') ,
+            extract('hour', Entry.created))
+                .filter(func.date(Entry.created) == date,
+                        Entry.device_id == device_id)
+                .group_by(func.strftime('%H', Entry.created))
+                .all())
+
+        chart_data = [{'x': n.created.hour,
+                       'avg_t': n.avg_temp,
+                       'avg_h': n.avg_humi} for n in entries]
+        data.update({'chart_data': chart_data})
+    else:
+        entries = Entry.query.filter(
+            func.date(Entry.created) == date,
+            Entry.device_id == device_id).all()
+
+    data.update({'entries': entries, 'date': dt.strptime(str(date), '%Y-%m-%d')})
+    
+    return render_template('detail.html', **data)
+
 
 @app.route('/add', methods=['POST'])
 def add():
@@ -109,4 +151,4 @@ def add():
         return Error.CREATE_ERROR, 400
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, host="0.0.0.0")
