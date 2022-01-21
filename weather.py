@@ -23,5 +23,7 @@ def get_weather():
     temp  = data['main']['temp']
     temp = round(int(temp))
     humi = data['main']['humidity']
-    
-    return {'city': city_name, 'icon_url': icon_url, 'temp': temp, 'humidity': humi}
+    pressure = data['main']['pressure']
+    pressure_mmhg = round(pressure * 0.75006157818041)
+    return {'city': city_name, 'icon_url': icon_url,
+            'temp': temp, 'humidity': humi, 'pressure': pressure_mmhg}

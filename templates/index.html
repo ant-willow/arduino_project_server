@@ -18,9 +18,11 @@
 
         <div class="cell">
             <div class="card">
-                <div class="card-divider">
-                    <h4>Датчик 1</h4>
-                </div>
+                <a href="{{ url_for('detail', device_id = 1) }}">
+                    <div class="card-divider" > 
+                        <h4>Датчик 1</h4>
+                    </div>
+                </a>
                 <div class="card-section">
                     {% if entry %}
                     <h3>Температура&#127777;</h3>
@@ -40,9 +42,11 @@
 
         <div class="cell">
             <div class="card">
-                <div class="card-divider">
-                    <h4>Датчик 2</h4>
-                </div>
+                <a href="{{ url_for('detail', device_id = 2) }}">
+                    <div class="card-divider" > 
+                        <h4>Датчик 2</h4>
+                    </div>
+                </a>
                 <div class="card-section">
                     {% if entry2 %}
                     <h3>Температура&#127777;</h3>
@@ -66,9 +70,12 @@
     <div  style="text-align: center;  padding: 3pt">
         <h4 style="margin: 3pt">{{ weather.city }}</h4>
         {{ weather.temp }}°C
-        <img height="60" width="60" style="float: right text-align: center; background-color:#bdd6fc;" src="{{ weather.icon_url }}" alt="icon">
-        {{weather.humidity }} %
+        <a href="https://openweathermap.org/city/498817">
+            <img height="60" width="60" style="float: right text-align: center; background-color:#bdd6fc;" src="{{ weather.icon_url }}" alt="icon">
+        </a>
+        {{weather.humidity }}%
     </div>
+    <div style="text-align: center;">{{weather.pressure }} мм рт. ст.</div>
     {% endif %}
 </div>
 

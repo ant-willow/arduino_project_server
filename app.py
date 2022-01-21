@@ -1,7 +1,8 @@
 import logging
 from datetime import datetime as dt
+from os import error
 
-from flask import Flask, redirect, render_template, request
+from flask import Flask, jsonify, redirect, render_template, request
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import extract, func
 
@@ -16,6 +17,8 @@ class Error:
     WRONG_DATA = 'Некорректные данные!'
     SENSORS_ERROR = 'Некорректная работа сенсоров!'
     CREATE_ERROR = 'Ошибка создания записи!'
+    QUERY_ERROR = 'Неправильный запрос!'
+
 
 logging.basicConfig(filename='arduino_temp_humi.log', level=logging.INFO,
                    format='%(asctime)s %(levelname)s - %(message)s')
@@ -136,13 +139,13 @@ def add():
     temp = request.form.get('temp')
     humi = request.form.get('humi')
 
-    if temp is None or humi is None:
-        logging.error(Error.WRONG_DATA)
-        return Error.WRONG_DATA, 400
-    
-    if temp != temp or humi != humi:
+    if temp == 'nan' or humi == 'nan':
         logging.error(Error.SENSORS_ERROR)
         return Error.SENSORS_ERROR, 400
+    print(float(temp), float(humi))
+    if float(temp) < 0 or float(humi) > 100:
+        logging.error(Error.WRONG_DATA)
+        return Error.WRONG_DATA, 400
     
     temp = round(float(temp), 1)
     humi = round(float(humi), 1)
@@ -158,10 +161,37 @@ def add():
         return Error.CREATE_ERROR, 400
 
 
+def device_data(device_id):
+    entry = (Entry.query.order_by(Entry.created.desc())
+             .filter(Entry.device_id == device_id).first())
+    if not entry:
+        return None
+
+    updated = {'date': dt.strftime(entry.created, '%d.%m.%y'),
+                'time': dt.strftime(entry.created, '%H:%M')}
+    return {'updated': updated,
+            'device_id': entry.device_id,
+            'temp': entry.temperature,
+            'humi': entry.humidity}
+
+@app.route('/api/last')
+def api_last():
+    device_list = request.args.get('device_id', [1, 2])
+    data = [dt.strftime(moscow_now(), '%H:%M')]
+    for device in device_list:
+        dev_data = device_data(device)
+        if dev_data:
+            data.append(dev_data)
+
+    # data_list = [device_data(device) for device in device_list if device_data(device)]
+    if data:
+        return jsonify(data)
+    return Error.QUERY_ERROR, 400
+
 @app.errorhandler(404)
 def not_found(e):
-  return render_template("404.html"), 404
+  return render_template('404.html'), 404
 
 
 if __name__ == '__main__':
-    app.run(debug=True, host="0.0.0.0")
+    app.run(debug=True, host='0.0.0.0')
